@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:data_analyzer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Assets/Styles/FocusVisualStyle.xaml" />
+                <ResourceDictionary Source="Assets/Styles/CustomControlButtonStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

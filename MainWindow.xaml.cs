@@ -116,15 +116,22 @@ namespace data_analyzer
             this.WindowState = WindowState.Minimized;
         }
 
+        private void btMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+                this.WindowState = WindowState.Normal;
+            else
+                this.WindowState = WindowState.Maximized;
+        }
+
         private void btExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        private void IntroWindow_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void IntroWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
+            this.DragMove();
         }
     }
 }

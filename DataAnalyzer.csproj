@@ -8,13 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\Images\exit.png" />
-    <None Remove="Assets\Images\minimize.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Assets\Images\exit.png" />
-    <Resource Include="Assets\Images\minimize.png" />
+    <Folder Include="Assets\Images\" />
   </ItemGroup>
 
 </Project>

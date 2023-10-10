@@ -5,18 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:data_analyzer"
         mc:Ignorable="d" FontFamily="Cascadia Code"
-        Height="450" Width="800" ResizeMode="NoResize" 
-        WindowStyle="None" WindowStartupLocation="CenterScreen"
-        MouseDown="IntroWindow_MouseDown">
+        Height="450" Width="800" WindowStyle="None" 
+        WindowStartupLocation="CenterScreen"
+        MinHeight="320" MinWidth="640"
+        MouseLeftButtonDown="IntroWindow_MouseLeftButtonDown">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0" CornerRadius="0" CaptionHeight="0" />
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <SolidColorBrush x:Key="btBackground" Color="#FF0B473A" />
-        <SolidColorBrush x:Key="btBackgroundHover" Color="#FF137C65" />
-        <SolidColorBrush x:Key="btForeground" Color="#FFFFFFFF" />
-        <SolidColorBrush x:Key="btBorderBrush" Color="#FF707070" />
-        <SolidColorBrush x:Key="btBorderBrushHover" Color="#31C4AE" />
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FF0B473A"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FF137C65"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FF18A082"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
 
-        <Style x:Key="MainButtonStyle" TargetType="{x:Type Button}">
+        <Style x:Key="IntroButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Width" Value="250" />
             <Setter Property="Height" Value="70" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
@@ -24,11 +33,16 @@
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Padding" Value="1" />
-            <Setter Property="Background" Value="{StaticResource btBackground}" />
-            <Setter Property="Foreground" Value="{StaticResource btForeground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource btBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            
+            <Setter Property="Margin" Value="40" />
+
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
@@ -36,86 +50,76 @@
                             <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsDefault" Value="True">
-                                <Setter Property="Background" Value="{StaticResource btBackground}" />
-                                <Setter Property="BorderBrush" Value="{StaticResource btBorderBrush}" />
-                                <Setter Property="BorderThickness" Value="1" />
+                            <Trigger Property="IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource btBackgroundHover}" />
-                                <Setter Property="BorderBrush" Value="{StaticResource btBorderBrushHover}" />
-                                <Setter Property="BorderThickness" Value="1" />
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <Style x:Key="ControlButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Width" Value="30" />
-            <Setter Property="Height" Value="30" />
-            <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Cursor" Value="Hand" />
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
-                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsDefault" Value="True">
-                                <Setter Property="BorderBrush" Value="Transparent" />
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource btBorderBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>    
-    
     </Window.Resources>
 
+    
     <Grid Background="#95EEDA">
-        
-        <TextBlock Text="DataAnalyzerStudio 2023" FontSize="40" FontWeight="Bold"
-                   VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0 100 0 0" />
-        
-        <TextBlock Text="Do analysis for..." FontSize="24" FontWeight="Bold"
-                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        
-        <Button Style="{DynamicResource MainButtonStyle}"
-                x:Name="btLoadTextFile" Margin="80 0 0 50"
-                HorizontalAlignment="Left" Content="Text file"
-                Click="btLoadTextFile_Click" />
 
-        <Button Style="{DynamicResource MainButtonStyle}"
-                x:Name="btLoadBinaryFile" Margin="0 0 80 50"
-                HorizontalAlignment="Right" Content="Binary file"
-                Click="btLoadBinaryFile_Click" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
 
 
-        <Button Style="{DynamicResource ControlButtonStyle}" 
-                x:Name="btMinimize" Margin="5 5 45 5"
-                Click="btMinimize_Click">
-            <Button.Background>
-                <ImageBrush ImageSource="Assets/images/minimize.png"/>
-            </Button.Background>
-        </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
 
-        <Button Style="{DynamicResource ControlButtonStyle}"
-                x:Name="btExit" Margin="5"
-                Click="btExit_Click">
-            <Button.Background>
-                <ImageBrush ImageSource="Assets/images/exit.png" Stretch="Fill" />
-            </Button.Background>
-        </Button>
-        
+            <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                    x:Name="btMinimize" Click="btMinimize_Click" Content="_" />
+
+
+            <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                    x:Name="btMaximize" Click="btMaximize_Click" Content="🗖" />
+
+
+            <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                    x:Name="btExit" Click="btExit_Click" Content="X" />
+            
+        </StackPanel>
+
+
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+            <TextBlock Grid.Row="2" Text="DataAnalyzerStudio 2023" 
+                       FontSize="40" FontWeight="Bold" 
+                       HorizontalAlignment="Center" Margin="0 0 0 40" />
+
+            <TextBlock Grid.Row="2" Text="Do analysis for..." 
+                       FontSize="24" FontWeight="Bold" 
+                       HorizontalAlignment="Center"  />
+
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Grid.Row="2" Style="{DynamicResource IntroButtonStyle}" 
+                    x:Name="btLoadTextFile"
+                    Content="Text file"
+                    Click="btLoadTextFile_Click" />
+
+                <Button Grid.Row="2" Style="{DynamicResource IntroButtonStyle}" 
+                    x:Name="btLoadBinaryFile"
+                    Content="Binary file"
+                    Click="btLoadBinaryFile_Click" />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
