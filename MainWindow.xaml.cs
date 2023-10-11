@@ -1,10 +1,12 @@
 ﻿using DataAnalyzer;
+using DataAnalyzer.ViewModel;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Shell;
 
 namespace data_analyzer
 {
@@ -13,13 +15,21 @@ namespace data_analyzer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private WindowChrome windowChrome;
+
         public MainWindow()
         {
             InitializeComponent();
+            
+            windowChrome = new WindowChrome();
+            windowChrome.CaptionHeight = 0;
+            windowChrome.CornerRadius = new(0);
+            windowChrome.GlassFrameThickness = new(0);
+            WindowChrome.SetWindowChrome(this, windowChrome);
         }
 
 
-        private List<double> GetTextData(string filename)
+        private static List<double> GetTextData(string filename)
         {
             List<double> data = new();
 
@@ -43,13 +53,13 @@ namespace data_analyzer
             return data;
         }
 
-        private List<double> GetBinaryData(string filename)
+        private static List<double> GetBinaryData(string filename)
         {
             List<double> data = new();
 
             try
             {
-                using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+                using (BinaryReader reader = new (File.OpenRead(filename)))
                 {
                     while (reader.BaseStream.Position < reader.BaseStream.Length)
                     {
@@ -74,23 +84,26 @@ namespace data_analyzer
 
         private void OutputData(List<double> data)
         {
-            EditorWindow editorWindow = new EditorWindow();
-
-            foreach (var item in data)
-            {
-                editorWindow.lstDataOutput.Items.Add(item);
-            }
+            EditorWindowViewModel vm = new(data);
+            EditorWindow editorWindow = new(vm);
             this.Close();
             editorWindow.Show();
         }
 
 
+        private void IntroWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
+        }
+
         private void btLoadTextFile_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new OpenFileDialog();
-            fileDialog.Title = "Select a Text File";
-            fileDialog.Filter = "Text Files (*.txt)|*.txt";
-            fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var fileDialog = new OpenFileDialog
+            {
+                Title = "Select a Text File",
+                Filter = "Text Files (*.txt)|*.txt",
+                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
 
             if (fileDialog.ShowDialog() == true)
             {
@@ -100,10 +113,12 @@ namespace data_analyzer
 
         private void btLoadBinaryFile_Click(object sender, RoutedEventArgs e)
         {
-            var fileDialog = new OpenFileDialog();
-            fileDialog.Title = "Select a Binary File";
-            fileDialog.Filter = "Binary Files (*.dat)|*.dat";
-            fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var fileDialog = new OpenFileDialog
+            {
+                Title = "Select a Binary File",
+                Filter = "Binary Files (*.dat)|*.dat",
+                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
 
             if (fileDialog.ShowDialog() == true)
             {
@@ -119,19 +134,20 @@ namespace data_analyzer
         private void btMaximize_Click(object sender, RoutedEventArgs e)
         {
             if (this.WindowState == WindowState.Maximized)
+            {
                 this.WindowState = WindowState.Normal;
+                WindowChrome.SetWindowChrome(this, windowChrome);
+            }
             else
+            {
                 this.WindowState = WindowState.Maximized;
+                WindowChrome.SetWindowChrome(this, null);
+            }
         }
 
         private void btExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void IntroWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
         }
     }
 }
