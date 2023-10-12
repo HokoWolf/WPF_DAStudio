@@ -1,6 +1,5 @@
 ﻿using DataAnalyzer.Domain;
 using DataAnalyzer.ViewModel;
-using DataAnalyzer.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -9,42 +8,46 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Shell;
 
-namespace data_analyzer
+namespace DataAnalyzer.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for EditorWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class EditorWindow : Window
     {
         private readonly WindowChrome windowChrome;
+        private EditorWindowController controller;
         private readonly IDataReader<double> textDataReader;
         private readonly IDataReader<double> binaryDataReader;
 
-        public MainWindow()
+
+        public EditorWindow(EditorWindowController editorController)
         {
             InitializeComponent();
 
             textDataReader = new TextDoubleDataReader();
             binaryDataReader = new BinaryDoubleDataReader();
-            
-            windowChrome = new WindowChrome();
-            windowChrome.CaptionHeight = 0;
-            windowChrome.CornerRadius = new(0);
-            windowChrome.GlassFrameThickness = new(0);
-            WindowChrome.SetWindowChrome(this, windowChrome);
+
+            windowChrome = new()
+            {
+                CaptionHeight = 0,
+                CornerRadius = new(0),
+                GlassFrameThickness = new(0)
+            };
+
+            controller = editorController;
+            this.DataContext = controller;
         }
 
 
         private void OutputData(IList<double> data)
         {
-            EditorWindowController vm = new(data.ToList<double>());
-            EditorWindow editorWindow = new(vm);
-            this.Close();
-            editorWindow.Show();
+            controller = new(data.ToList<double>());
+            this.DataContext = controller;
         }
 
 
-        private void IntroWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void EditWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
             {
@@ -63,36 +66,6 @@ namespace data_analyzer
             }
 
             this.DragMove();
-        }
-
-        private void btLoadTextFile_Click(object sender, RoutedEventArgs e)
-        {
-            var fileDialog = new OpenFileDialog
-            {
-                Title = "Select a Text File",
-                Filter = "Text Files (*.txt)|*.txt",
-                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
-            };
-
-            if (fileDialog.ShowDialog() == true)
-            {
-                OutputData(textDataReader.GetData(fileDialog.FileName));
-            }
-        }
-
-        private void btLoadBinaryFile_Click(object sender, RoutedEventArgs e)
-        {
-            var fileDialog = new OpenFileDialog
-            {
-                Title = "Select a Binary File",
-                Filter = "Binary Files (*.dat)|*.dat",
-                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
-            };
-
-            if (fileDialog.ShowDialog() == true)
-            {
-                OutputData(binaryDataReader.GetData(fileDialog.FileName));
-            }
         }
 
         private void btMinimize_Click(object sender, RoutedEventArgs e)
@@ -117,6 +90,36 @@ namespace data_analyzer
         private void btExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void miLoadTextFile_Click(object sender, RoutedEventArgs e)
+        {
+            var fileDialog = new OpenFileDialog
+            {
+                Title = "Select a Text File",
+                Filter = "Text Files (*.txt)|*.txt",
+                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
+
+            if (fileDialog.ShowDialog() == true)
+            {
+                OutputData(textDataReader.GetData(fileDialog.FileName));
+            }
+        }
+
+        private void miLoadBinaryFile_Click(object sender, RoutedEventArgs e)
+        {
+            var fileDialog = new OpenFileDialog
+            {
+                Title = "Select a Binary File",
+                Filter = "Binary Files (*.dat)|*.dat",
+                InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+            };
+
+            if (fileDialog.ShowDialog() == true)
+            {
+                OutputData(binaryDataReader.GetData(fileDialog.FileName));
+            }
         }
     }
 }

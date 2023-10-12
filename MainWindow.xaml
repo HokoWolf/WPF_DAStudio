@@ -70,10 +70,10 @@
     </Window.Resources>
 
     
-    <Grid Background="#95EEDA">
+    <Grid Background="#FF95EEDA">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="30" />
             <RowDefinition />
         </Grid.RowDefinitions>
 
