@@ -10,6 +10,25 @@
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
         MouseLeftButtonDown="EditWindow_MouseLeftButtonDown">
 
+    <Window.Resources>
+        <Style TargetType="DataGridCell">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="WrapWithOverflow" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -20,7 +39,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition />
-                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <Menu Margin="5" VerticalAlignment="Center" Background="Transparent">
@@ -38,9 +57,14 @@
                                   Click="miLoadBinaryFile_Click" />
                     </MenuItem>
                 </MenuItem>
+                <MenuItem Header="Редактувати">
+                    <MenuItem x:Name="miChangeClassesCount" 
+                              Header="Змінити кількість класів"
+                              Command="{Binding ChangeClassCountCommand}" />
+                </MenuItem>
             </Menu>
 
-            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{DynamicResource CustomControlButtonStyle}" 
                         x:Name="btMinimize" Content="_" Click="btMinimize_Click" />
                 <Button Style="{DynamicResource CustomControlButtonStyle}" 
@@ -48,49 +72,27 @@
                 <Button Style="{DynamicResource CustomControlButtonStyle}" 
                         x:Name="btExit" Content="X" Click="btExit_Click" />
             </StackPanel>
-
         </Grid>
 
-        
 
-
-        <Grid Grid.Row="2" Margin="0 20 0 0">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.6*" />
-                <ColumnDefinition Width="0.4*" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.7*" />
-                    <RowDefinition Height="0.3*" />
+                    <RowDefinition Height="0.8*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="0.2*" />
                 </Grid.RowDefinitions>
 
-                <DataGrid x:Name="dgVariationRange" AutoGenerateColumns="False" 
-                          CanUserAddRows="False" CanUserDeleteRows="False" 
-                          CanUserReorderColumns="False" CanUserSortColumns="False"
+                <DataGrid x:Name="dgVariationRange" IsReadOnly="True" 
+                          AutoGenerateColumns="False" CanUserReorderColumns="False"  
+                          CanUserResizeRows="False" CanUserSortColumns="False" 
                           ItemsSource="{Binding Variaties}">
-
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="HorizontalAlignment" Value="Right" />
-                        </Style>
-                    </DataGrid.CellStyle>
-
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="FontWeight" Value="Bold" />
-                            <Setter Property="FontSize" Value="14" />
-                            <Setter Property="ContentTemplate">
-                                <Setter.Value>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" TextWrapping="WrapWithOverflow" />
-                                    </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="0.16*" MinWidth="80" 
@@ -107,32 +109,12 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid Grid.Row="2" Margin="0 20 0 0" x:Name="dgVariationClassesRange" 
-                          AutoGenerateColumns="False" 
-                          CanUserAddRows="False" CanUserDeleteRows="False" 
-                          CanUserReorderColumns="False" CanUserSortColumns="False"
-                          ItemsSource="{Binding VariatyClasses}">
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" />
 
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="HorizontalAlignment" Value="Right" />
-                        </Style>
-                    </DataGrid.CellStyle>
-
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="FontWeight" Value="Bold" />
-                            <Setter Property="FontSize" Value="14" />
-                            <Setter Property="ContentTemplate">
-                                <Setter.Value>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" TextWrapping="WrapWithOverflow" />
-                                    </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
+                <DataGrid Grid.Row="2" x:Name="dgVariationClassesRange" 
+                          IsReadOnly="True" AutoGenerateColumns="False"
+                          CanUserReorderColumns="False" CanUserResizeRows="False"
+                          CanUserSortColumns="False" ItemsSource="{Binding VariatyClasses}">
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="0.16*" MinWidth="80" 
@@ -148,6 +130,44 @@
                                 Binding="{Binding ECDFValue}" />
                     </DataGrid.Columns>
                 </DataGrid>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.3*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <DataGrid x:Name="dgCharacteristics" Height="Auto" IsReadOnly="True"
+                          HeadersVisibility="All" AutoGenerateColumns="False" 
+                          CanUserReorderColumns="False" CanUserSortColumns="False" 
+                          CanUserResizeRows="False" ItemsSource="{Binding Characteristics}">
+
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                            <Setter Property="FontSize" Value="14" />
+                        </Style>
+                    </DataGrid.CellStyle>
+                    
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="0.4*" MinWidth="120" 
+                                            Header="Характерстика" Binding="{Binding Name}" />
+                        <DataGridTextColumn Width="0.2*" MinWidth="80" 
+                                            Header="Оцінка" Binding="{Binding Evaluatioin}" />
+                        <DataGridTextColumn Width="0.2*" MinWidth="180" 
+                                            Header="Середньоквадратичне відхилення оцінки"
+                                            Binding="{Binding EvaluationDiviation}" />
+                        <DataGridTextColumn Width="0.2*" MinWidth="140" 
+                                            Header="95% довірчий інтервал для характеристики"
+                                            Binding="{Binding ConfidenceInterval}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" />
             </Grid>
         </Grid>
     </Grid>

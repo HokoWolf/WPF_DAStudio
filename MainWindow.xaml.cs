@@ -1,5 +1,5 @@
 ﻿using DataAnalyzer.Domain;
-using DataAnalyzer.ViewModel;
+using DataAnalyzer.ViewModels;
 using DataAnalyzer.Views;
 using Microsoft.Win32;
 using System;
@@ -26,19 +26,21 @@ namespace data_analyzer
 
             textDataReader = new TextDoubleDataReader();
             binaryDataReader = new BinaryDoubleDataReader();
-            
-            windowChrome = new WindowChrome();
-            windowChrome.CaptionHeight = 0;
-            windowChrome.CornerRadius = new(0);
-            windowChrome.GlassFrameThickness = new(0);
+
+            windowChrome = new()
+            {
+                CaptionHeight = 0,
+                CornerRadius = new(0),
+                GlassFrameThickness = new(0)
+            };
             WindowChrome.SetWindowChrome(this, windowChrome);
         }
 
 
         private void OutputData(IList<double> data)
         {
-            EditorWindowController vm = new(data.ToList<double>());
-            EditorWindow editorWindow = new(vm);
+            EditorWindow editorWindow = 
+                new(new EditorWindowViewModel(data.ToList<double>()));
             this.Close();
             editorWindow.Show();
         }

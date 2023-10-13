@@ -1,10 +1,11 @@
 ﻿using DataAnalyzer.Domain;
-using DataAnalyzer.ViewModel;
+using DataAnalyzer.ViewModels;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shell;
 
@@ -16,14 +17,14 @@ namespace DataAnalyzer.Views
     public partial class EditorWindow : Window
     {
         private readonly WindowChrome windowChrome;
-        private EditorWindowController controller;
         private readonly IDataReader<double> textDataReader;
         private readonly IDataReader<double> binaryDataReader;
 
 
-        public EditorWindow(EditorWindowController editorController)
+        public EditorWindow(EditorWindowViewModel vm)
         {
             InitializeComponent();
+            this.DataContext = vm;
 
             textDataReader = new TextDoubleDataReader();
             binaryDataReader = new BinaryDoubleDataReader();
@@ -34,38 +35,37 @@ namespace DataAnalyzer.Views
                 CornerRadius = new(0),
                 GlassFrameThickness = new(0)
             };
-
-            controller = editorController;
-            this.DataContext = controller;
         }
 
 
         private void OutputData(IList<double> data)
         {
-            controller = new(data.ToList<double>());
-            this.DataContext = controller;
+            this.DataContext = new EditorWindowViewModel(data.ToList<double>());
         }
 
 
         private void EditWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
+            if (Mouse.DirectlyOver is Grid)
             {
-                btMaximize_Click(this, new RoutedEventArgs());
-                return;
+                if (e.ClickCount == 2)
+                {
+                    btMaximize_Click(this, new RoutedEventArgs());
+                    return;
+                }
+                else if (this.WindowState == WindowState.Maximized)
+                {
+                    double x_prop = e.GetPosition(this).X / this.Width;
+                    double y_prop = e.GetPosition(this).Y / this.Height;
+
+                    btMaximize_Click(this, new RoutedEventArgs());
+
+                    this.Left = e.GetPosition(this).X - (this.Width * x_prop);
+                    this.Top = e.GetPosition(this).Y - (this.Height * y_prop);
+                }
+
+                this.DragMove();
             }
-            else if (this.WindowState == WindowState.Maximized)
-            {
-                double x_prop = e.GetPosition(this).X / this.Width;
-                double y_prop = e.GetPosition(this).Y / this.Height;
-
-                btMaximize_Click(this, new RoutedEventArgs());
-
-                this.Left = e.GetPosition(this).X - (this.Width * x_prop);
-                this.Top = e.GetPosition(this).Y - (this.Height * y_prop);
-            }
-
-            this.DragMove();
         }
 
         private void btMinimize_Click(object sender, RoutedEventArgs e)

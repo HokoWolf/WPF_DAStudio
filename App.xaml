@@ -8,6 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Assets/Styles/FocusVisualStyle.xaml" />
                 <ResourceDictionary Source="Assets/Styles/CustomControlButtonStyle.xaml" />
+                <ResourceDictionary Source="Assets/Styles/CommonButtonStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
