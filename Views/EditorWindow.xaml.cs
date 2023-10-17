@@ -1,4 +1,4 @@
-﻿using DataAnalyzer.Domain;
+﻿using DataAnalyzer.Domain.DataReading;
 using DataAnalyzer.ViewModels;
 using Microsoft.Win32;
 using System;
@@ -16,6 +16,7 @@ namespace DataAnalyzer.Views
     /// </summary>
     public partial class EditorWindow : Window
     {
+        private readonly EditorWindowViewModel viewModel;
         private readonly WindowChrome windowChrome;
         private readonly IDataReader<double> textDataReader;
         private readonly IDataReader<double> binaryDataReader;
@@ -24,7 +25,8 @@ namespace DataAnalyzer.Views
         public EditorWindow(EditorWindowViewModel vm)
         {
             InitializeComponent();
-            this.DataContext = vm;
+            viewModel = vm;
+            this.DataContext = viewModel;
 
             textDataReader = new TextDoubleDataReader();
             binaryDataReader = new BinaryDoubleDataReader();

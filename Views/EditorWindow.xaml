@@ -152,16 +152,16 @@
                             <Setter Property="FontSize" Value="14" />
                         </Style>
                     </DataGrid.CellStyle>
-                    
+
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="0.4*" MinWidth="120" 
+                        <DataGridTextColumn Width="0.3*" MinWidth="120" 
                                             Header="Характерстика" Binding="{Binding Name}" />
                         <DataGridTextColumn Width="0.2*" MinWidth="80" 
-                                            Header="Оцінка" Binding="{Binding Evaluatioin}" />
+                                            Header="Оцінка" Binding="{Binding Evaluation}" />
                         <DataGridTextColumn Width="0.2*" MinWidth="180" 
                                             Header="Середньоквадратичне відхилення оцінки"
                                             Binding="{Binding EvaluationDiviation}" />
-                        <DataGridTextColumn Width="0.2*" MinWidth="140" 
+                        <DataGridTextColumn Width="0.3*" MinWidth="140" 
                                             Header="95% довірчий інтервал для характеристики"
                                             Binding="{Binding ConfidenceInterval}" />
                     </DataGrid.Columns>

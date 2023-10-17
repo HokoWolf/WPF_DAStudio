@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 
-namespace DataAnalyzer.Domain
+namespace DataAnalyzer.Domain.DataReading
 {
-    public class BinaryDoubleDataReader : IDataReader<double>
+    public class TextDoubleDataReader : IDataReader<double>
     {
         public IList<double> GetData(string filename)
         {
@@ -13,18 +13,13 @@ namespace DataAnalyzer.Domain
 
             try
             {
-                using (BinaryReader reader = new(File.OpenRead(filename)))
+                using (TextReader reader = File.OpenText(filename))
                 {
-                    while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    string? input;
+
+                    while ((input = reader.ReadLine()) != null)
                     {
-                        try
-                        {
-                            data.Add(reader.ReadDouble());
-                        }
-                        catch (EndOfStreamException)
-                        {
-                            break;
-                        }
+                        data.Add(double.Parse(input));
                     }
                 }
             }

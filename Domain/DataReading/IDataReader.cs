@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DataAnalyzer.Domain
+namespace DataAnalyzer.Domain.DataReading
 {
     public interface IDataReader<T>
     {
