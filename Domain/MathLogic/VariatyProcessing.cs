@@ -1,9 +1,6 @@
 ﻿using DataAnalyzer.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Windows.Markup;
 
 namespace DataAnalyzer.Domain.MathLogic
 {
@@ -11,6 +8,8 @@ namespace DataAnalyzer.Domain.MathLogic
     {
         public List<Variaty> Variaties { get; private set; }
         public List<VariatyClass> VariatyClasses { get; private set; }
+
+        public double ClassWidth { get; private set; }
 
 
         private int classCount;
@@ -43,7 +42,7 @@ namespace DataAnalyzer.Domain.MathLogic
         }
 
 
-        public VariatyProcessing(List<double> inputData, int classesCount = 5)
+        public VariatyProcessing(List<double> inputData)
         {
             data = inputData;
             data.Sort();
@@ -51,9 +50,20 @@ namespace DataAnalyzer.Domain.MathLogic
             Variaties = FillVariaties(inputData);
 
             VariatyClasses = new();
-            ClassCount = classesCount;
+            ClassCount = CalculateDefaultClassCount();
         }
 
+
+        public void SetDefaultClassCount()
+        {
+            ClassCount = CalculateDefaultClassCount();
+        }
+
+
+        private int CalculateDefaultClassCount()
+        {
+            return (int)(1 + 3.32 * Math.Log(Data.Count));
+        }
 
         private List<Variaty> FillVariaties(List<double> data)
         {
@@ -88,9 +98,6 @@ namespace DataAnalyzer.Domain.MathLogic
             {
                 item.ECDFValue = item.RelativeFrequency + step;
                 step += item.RelativeFrequency;
-
-                item.RelativeFrequency = Math.Round(item.RelativeFrequency, 4);
-                item.ECDFValue = Math.Round(item.ECDFValue, 4);
             }
 
             return variaties;
@@ -101,7 +108,7 @@ namespace DataAnalyzer.Domain.MathLogic
             List<VariatyClass> variatyClasses = new();
 
             double minX = variaties[0].Value;
-            double h = (variaties[^1].Value - minX) / classesCount;
+            ClassWidth = (variaties[^1].Value - minX) / classesCount;
             int counter = 0;
 
             for (int i = 0; i < classesCount; i++)
@@ -110,8 +117,8 @@ namespace DataAnalyzer.Domain.MathLogic
                 {
                     Id = i + 1,
                     MinValue = minX,
-                    MaxValue = minX + h,
-                    Value = $"[{minX}; {minX + h})",
+                    MaxValue = minX + ClassWidth,
+                    Value = $"[{minX}; {minX + ClassWidth})",
                     Frequency = 0,
                     RelativeFrequency = 0.0,
                     ECDFValue = 0.0
@@ -119,13 +126,13 @@ namespace DataAnalyzer.Domain.MathLogic
 
                 VariatyClass current = variatyClasses[^1];
 
-                while (variaties[counter].Value < minX + h)
+                while (variaties[counter].Value < minX + ClassWidth)
                 {
                     current.Frequency++;
                     counter++;
                 }
                 current.RelativeFrequency = (double)current.Frequency / variaties.Count;
-                minX += h;
+                minX += ClassWidth;
             }
 
             VariatyClass temp = variatyClasses[^1];
@@ -141,9 +148,6 @@ namespace DataAnalyzer.Domain.MathLogic
                 VariatyClass item = variatyClasses[i];
                 item.ECDFValue = item.RelativeFrequency + step;
                 step += item.RelativeFrequency;
-
-                item.RelativeFrequency = Math.Round(item.RelativeFrequency, 4);
-                item.ECDFValue = Math.Round(item.ECDFValue, 4);
             }
 
             return variatyClasses;

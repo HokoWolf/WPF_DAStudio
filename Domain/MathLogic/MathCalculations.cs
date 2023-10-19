@@ -17,12 +17,15 @@ namespace DataAnalyzer.Domain.MathLogic
             get { return confidenceLevel; }
             set
             {
-                confidenceLevel = value >= 0.5 ? value : 0.975;
+                if (value >= 0.5)
+                {
+                    confidenceLevel = value;
 
-                normalQuantile = CalculateNormalQuantile(confidenceLevel);
-                studentQuantile = CalculateStudentQuantile(normalQuantile, data.Count - 1);
+                    normalQuantile = CalculateNormalQuantile(confidenceLevel);
+                    studentQuantile = CalculateStudentQuantile(normalQuantile, data.Count - 1);
 
-                Characteristics = FillCharacteristics();
+                    Characteristics = FillCharacteristics();
+                }
             }
         }
 
@@ -97,7 +100,7 @@ namespace DataAnalyzer.Domain.MathLogic
         private List<Characteristic> FillCharacteristics()
         {
             List<Characteristic> characteristics = new();
-            int N = data.Count;
+            int N = Data.Count;
 
             // Fill base characteristics
             characteristics.Add(new Characteristic()
@@ -192,9 +195,9 @@ namespace DataAnalyzer.Domain.MathLogic
                 characteristics[0].Evaluation + studentQuantile * characteristics[0].EvaluationDiviation;
 
             characteristics[1].ConfidenceIntervalMin =
-                data[Convert.ToInt32(N / 2 - normalQuantile * Math.Sqrt(N) / 2)];
+                Data[Convert.ToInt32(N / 2 - normalQuantile * Math.Sqrt(N) / 2)];
             characteristics[1].ConfidenceIntervalMax =
-                data[Convert.ToInt32(N / 2 + 1 + normalQuantile * Math.Sqrt(N) / 2)];
+                Data[Convert.ToInt32(N / 2 + 1 + normalQuantile * Math.Sqrt(N) / 2)];
 
             characteristics[2].ConfidenceIntervalMin =
                 characteristics[2].Evaluation - studentQuantile * characteristics[2].EvaluationDiviation;

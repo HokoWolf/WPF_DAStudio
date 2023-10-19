@@ -9,6 +9,11 @@
                 <ResourceDictionary Source="Assets/Styles/FocusVisualStyle.xaml" />
                 <ResourceDictionary Source="Assets/Styles/CustomControlButtonStyle.xaml" />
                 <ResourceDictionary Source="Assets/Styles/CommonButtonStyle.xaml" />
+
+                <ResourceDictionary Source="pack://application:,,,/LiveCharts.Wpf;component/Themes/Colors/material.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/LiveCharts.Wpf;component/Themes/Size/l.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/LiveCharts.Wpf;component/Themes/Weight/normal.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/LiveCharts.Wpf;component/Themes/base.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -1,5 +1,7 @@
 ﻿using DataAnalyzer.Domain.DataReading;
 using DataAnalyzer.ViewModels;
+using LiveCharts;
+using LiveCharts.Wpf;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -21,10 +23,10 @@ namespace DataAnalyzer.Views
         private readonly IDataReader<double> textDataReader;
         private readonly IDataReader<double> binaryDataReader;
 
-
         public EditorWindow(EditorWindowViewModel vm)
         {
             InitializeComponent();
+
             viewModel = vm;
             this.DataContext = viewModel;
 
@@ -42,7 +44,7 @@ namespace DataAnalyzer.Views
 
         private void OutputData(IList<double> data)
         {
-            this.DataContext = new EditorWindowViewModel(data.ToList<double>());
+            viewModel.Data = data.ToList<double>();
         }
 
 
