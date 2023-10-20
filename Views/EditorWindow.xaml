@@ -59,9 +59,10 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="Редактувати">
-                    <MenuItem x:Name="miChangeClassesCount" 
-                              Header="Змінити кількість класів"
+                    <MenuItem Header="Змінити кількість класів"
                               Command="{Binding ChangeClassCountCommand}" />
+                    <MenuItem Header="Змінити ширину вікна" 
+                              Command="{Binding ChangeBandwidthCommand}" />
                 </MenuItem>
             </Menu>
 
@@ -85,7 +86,9 @@
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.8*" />
+                    <RowDefinition Height="0.6*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="0.2*" />
                     <RowDefinition Height="5" />
                     <RowDefinition Height="0.2*" />
                 </Grid.RowDefinitions>
@@ -131,18 +134,10 @@
                                 Binding="{Binding ECDFValue}" />
                     </DataGrid.Columns>
                 </DataGrid>
-            </Grid>
+                
+                <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" />
 
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
-
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="0.3*" />
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="0.7*" />
-                </Grid.RowDefinitions>
-
-                <DataGrid x:Name="dgCharacteristics" Height="Auto" IsReadOnly="True"
+                <DataGrid Grid.Row="4" x:Name="dgCharacteristics" Height="Auto" IsReadOnly="True"
                           HeadersVisibility="All" AutoGenerateColumns="False" 
                           CanUserReorderColumns="False" CanUserSortColumns="False" 
                           CanUserResizeRows="False" ItemsSource="{Binding Characteristics}">
@@ -156,24 +151,35 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Width="0.3*" MinWidth="120" 
-                                            Header="Характерстика" Binding="{Binding Name}" />
+                            Header="Характерстика" Binding="{Binding Name}" />
                         <DataGridTextColumn Width="0.2*" MinWidth="80" 
-                                            Header="Оцінка" Binding="{Binding Evaluation}" />
+                            Header="Оцінка" Binding="{Binding Evaluation}" />
                         <DataGridTextColumn Width="0.2*" MinWidth="180" 
-                                            Header="Середньоквадратичне відхилення оцінки"
-                                            Binding="{Binding EvaluationDiviation}" />
+                            Header="Середньоквадратичне відхилення оцінки"
+                            Binding="{Binding EvaluationDiviation}" />
                         <DataGridTextColumn Width="0.3*" MinWidth="140" 
-                                            Header="95% довірчий інтервал для характеристики"
-                                            Binding="{Binding ConfidenceInterval}" />
+                            Header="95% довірчий інтервал для характеристики"
+                            Binding="{Binding ConfidenceInterval}" />
                     </DataGrid.Columns>
                 </DataGrid>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.6*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="0.4*" />
+                </Grid.RowDefinitions>
+
+                <lvc:CartesianChart LegendLocation="Bottom" Series="{Binding MainChartSeries}"
+                                    AxisX="{Binding MainChartAxesX}" AxisY="{Binding MainChartAxesY}" />
 
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" />
 
-                <lvc:CartesianChart x:Name="lvcMainDiagram" Grid.Row="2" LegendLocation="Left"
-                                    Series="{Binding MainChartSeries}" 
-                                    AxisX="{Binding MainChartAxesX}" 
-                                    AxisY="{Binding MainChartAxesY}" />
+                <lvc:CartesianChart Grid.Row="2" LegendLocation="Bottom" Series="{Binding ECDFChartSeries}"
+                                    AxisX="{Binding ECDFChartAxesX}" AxisY="{Binding ECDFChartAxesY}"/>
             </Grid> 
         </Grid>
     </Grid>

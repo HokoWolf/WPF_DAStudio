@@ -9,8 +9,6 @@ namespace DataAnalyzer.Domain.MathLogic
         public List<Variaty> Variaties { get; private set; }
         public List<VariatyClass> VariatyClasses { get; private set; }
 
-        public double ClassWidth { get; private set; }
-
 
         private int classCount;
         public int ClassCount
@@ -21,8 +19,20 @@ namespace DataAnalyzer.Domain.MathLogic
                 if (value > 0)
                 {
                     classCount = value;
+                    ClassWidth = CalculateClassWidth(Variaties, classCount);
                     VariatyClasses = ClassesDistribution(Variaties, classCount);
                 }
+            }
+        }
+
+
+        private double classWidth;
+        public double ClassWidth
+        {
+            get { return classWidth; }
+            private set
+            {
+                classWidth = value > 0 ? value : classWidth;
             }
         }
 
@@ -37,7 +47,7 @@ namespace DataAnalyzer.Domain.MathLogic
                 data.Sort();
 
                 Variaties = FillVariaties(data);
-                VariatyClasses = ClassesDistribution(Variaties, ClassCount);
+                ClassCount = CalculateDefaultClassCount(data);
             }
         }
 
@@ -50,22 +60,16 @@ namespace DataAnalyzer.Domain.MathLogic
             Variaties = FillVariaties(inputData);
 
             VariatyClasses = new();
-            ClassCount = CalculateDefaultClassCount();
+            ClassCount = CalculateDefaultClassCount(data);
         }
 
 
-        public void SetDefaultClassCount()
+        public static int CalculateDefaultClassCount(List<double> data)
         {
-            ClassCount = CalculateDefaultClassCount();
+            return (int)(1 + 3.32 * Math.Log(data.Count));
         }
 
-
-        private int CalculateDefaultClassCount()
-        {
-            return (int)(1 + 3.32 * Math.Log(Data.Count));
-        }
-
-        private List<Variaty> FillVariaties(List<double> data)
+        public static List<Variaty> FillVariaties(List<double> data)
         {
             List<Variaty> variaties = new();
 
@@ -103,12 +107,17 @@ namespace DataAnalyzer.Domain.MathLogic
             return variaties;
         }
 
-        private List<VariatyClass> ClassesDistribution(List<Variaty> variaties, int classesCount)
+        public static double CalculateClassWidth(List<Variaty> variaties, int classesCount)
+        {
+            return (variaties[^1].Value - variaties[0].Value) / classesCount;
+        }
+
+        public static List<VariatyClass> ClassesDistribution(List<Variaty> variaties, int classesCount)
         {
             List<VariatyClass> variatyClasses = new();
 
             double minX = variaties[0].Value;
-            ClassWidth = (variaties[^1].Value - minX) / classesCount;
+            double classesWidth = (variaties[^1].Value - minX) / classesCount;
             int counter = 0;
 
             for (int i = 0; i < classesCount; i++)
@@ -117,8 +126,8 @@ namespace DataAnalyzer.Domain.MathLogic
                 {
                     Id = i + 1,
                     MinValue = minX,
-                    MaxValue = minX + ClassWidth,
-                    Value = $"[{minX}; {minX + ClassWidth})",
+                    MaxValue = minX + classesWidth,
+                    Value = $"[{minX}; {minX + classesWidth})",
                     Frequency = 0,
                     RelativeFrequency = 0.0,
                     ECDFValue = 0.0
@@ -126,13 +135,13 @@ namespace DataAnalyzer.Domain.MathLogic
 
                 VariatyClass current = variatyClasses[^1];
 
-                while (variaties[counter].Value < minX + ClassWidth)
+                while (counter < variaties.Count && variaties[counter].Value < minX + classesWidth)
                 {
                     current.Frequency++;
                     counter++;
                 }
                 current.RelativeFrequency = (double)current.Frequency / variaties.Count;
-                minX += ClassWidth;
+                minX += classesWidth;
             }
 
             VariatyClass temp = variatyClasses[^1];

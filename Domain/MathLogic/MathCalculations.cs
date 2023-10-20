@@ -181,11 +181,11 @@ namespace DataAnalyzer.Domain.MathLogic
             characteristics[2].EvaluationDiviation =
                 characteristics[2].Evaluation / Math.Sqrt(N * 2);
 
-            characteristics[3].EvaluationDiviation = Math.Sqrt((double)6 * N * (N - 1) /
-                ((N - 2) * (N + 1) * (N + 3)));
+            characteristics[3].EvaluationDiviation = Math.Sqrt((6.0 / (N - 2)) * ((double)N / (N + 1)) * 
+                ((double)(N - 1) / (N + 3)));
 
-            characteristics[4].EvaluationDiviation = Math.Sqrt((double)24 * N * (N - 1) * (N - 1) /
-                ((N - 3) * (N - 2) * (N + 3) * (N + 5)));
+            characteristics[4].EvaluationDiviation = Math.Sqrt((24.0 / (N - 3)) * ((double)N / (N  - 2)) * 
+                ((double)(N - 1) / (N + 3)) * ((double)(N - 1) / (N + 5)));
 
 
             // Fill characteristics confidence interval

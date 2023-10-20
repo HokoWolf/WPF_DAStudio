@@ -1,0 +1,53 @@
+﻿<Window x:Name="ChangeBandwidth" x:Class="DataAnalyzer.Views.ChangeBandwidthWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DataAnalyzer.Views"
+        mc:Ignorable="d" FontFamily="Cascadia Code" 
+        Height="300" Width="500" WindowStyle="None"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        MouseLeftButtonDown="ChangeClassCount_MouseLeftButtonDown">
+
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="BorderBrush" Value="#FF0B473A" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+    </Window.Style>
+
+    <Grid Background="#FFFDFDFD">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="#FF95EEDA">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                        x:Name="btExit" Content="X" Click="btCancel_Click" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Margin="0 0 0 50"  HorizontalAlignment="Center" 
+                       FontSize="24" Text="Визначте ширину вікна" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="5" VerticalAlignment="Center" 
+                           Text="Ширина вікна" FontSize="18" />
+                <TextBox x:Name="txtClassCount" Margin="5" Width="300" FontSize="24" TextAlignment="Right" 
+                         Text="{Binding Bandwidth, UpdateSourceTrigger=Explicit}" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="btOk" Style="{DynamicResource CommonButtonStyle}" 
+                    Width="100" Margin="5" FontSize="14" 
+                    Content="OK" Click="btOk_Click" />
+            <Button x:Name="btCancel" Style="{DynamicResource CommonButtonStyle}" 
+                    Width="100" Margin="5" FontSize="14" 
+                    Content="Cancel" Click="btCancel_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

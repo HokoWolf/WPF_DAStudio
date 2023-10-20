@@ -7,7 +7,6 @@ namespace DataAnalyzer.Domain.MathLogic
     public class DiagramsCalculations
     {
         private double bandwidth;
-
         public double Bandwidth
         {
             get { return bandwidth; }
@@ -16,11 +15,10 @@ namespace DataAnalyzer.Domain.MathLogic
                 if (value > 0)
                 {
                     bandwidth = value;
-                    KDEValues = CalculateKDEValues();
+                    KDEValues = CalculateKDEValues(Data, bandwidth);
                 }
             }
         }
-
 
 
         private List<double> data;
@@ -32,7 +30,7 @@ namespace DataAnalyzer.Domain.MathLogic
                 data = value;
                 data.Sort();
 
-                Bandwidth = CalculateDefaultBandwidth();
+                Bandwidth = CalculateDefaultBandwidth(data);
             }
         }
 
@@ -46,46 +44,40 @@ namespace DataAnalyzer.Domain.MathLogic
             data.Sort();
 
             KDEValues = new();
-            double bw = CalculateDefaultBandwidth();
+            double bw = CalculateDefaultBandwidth(data);
             Bandwidth = bw;
         }
 
 
-        public void SetDefaultBandwidth()
-        {
-            Bandwidth = CalculateDefaultBandwidth();
-        }
-
-        
-        private double CalculateDefaultBandwidth()
+        public static double CalculateDefaultBandwidth(List<double> data)
         {
             int N = data.Count;
             double S = Math.Sqrt(data.Sum(x => Math.Pow(x - data.Average(), 2)) / (N - 1));
             return S * Math.Pow(0.75 * N, -1.0 / 5.0);
         }
 
-        private double CalculateKernel(double u)
+        public static double CalculateKernel(double u)
         {
             return Math.Abs(u) <= Math.Sqrt(5.0) ?
                 (3.0 / (4.0 * Math.Sqrt(5.0)) * (1 - u * u / 5)) : 0;
         }
 
-        private List<double> CalculateKDEValues()
+        public static List<double> CalculateKDEValues(List<double> data, double bandwidth)
         {
             List<double> values = new();
-            int N = Data.Count;
+            int N = data.Count;
 
 
-            foreach (var x in Data)
+            foreach (var x in data)
             {
                 double sumKernel = 0.0;
 
-                foreach (var xi in Data)
+                foreach (var xi in data)
                 {
-                    sumKernel += CalculateKernel((x - xi) / Bandwidth);
+                    sumKernel += CalculateKernel((x - xi) / bandwidth);
                 }
 
-                values.Add(sumKernel / N / Bandwidth);
+                values.Add(sumKernel / N / bandwidth);
             }
 
             return values;
