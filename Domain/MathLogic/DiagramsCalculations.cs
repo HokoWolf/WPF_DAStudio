@@ -20,6 +20,12 @@ namespace DataAnalyzer.Domain.MathLogic
             }
         }
 
+        public double OutlierMinEdge { get; private set; }
+        public double OutlierMaxEdge { get; private set; }
+
+
+        public List<double> UnsortedData { get; private set; }
+
 
         private List<double> data;
         public List<double> Data
@@ -27,7 +33,10 @@ namespace DataAnalyzer.Domain.MathLogic
             get { return data; }
             set
             {
-                data = value;
+                UnsortedData = new(value);
+                (OutlierMinEdge, OutlierMaxEdge) = CalculateOutliersEdges(UnsortedData);
+
+                data = new(value);
                 data.Sort();
 
                 Bandwidth = CalculateDefaultBandwidth(data);
@@ -40,7 +49,10 @@ namespace DataAnalyzer.Domain.MathLogic
 
         public DiagramsCalculations(List<double> inputData)
         {
-            data = inputData;
+            UnsortedData = new(inputData);
+            (OutlierMinEdge, OutlierMaxEdge) = CalculateOutliersEdges(UnsortedData);
+
+            data = new(inputData);
             data.Sort();
 
             KDEValues = new();
@@ -81,6 +93,15 @@ namespace DataAnalyzer.Domain.MathLogic
             }
 
             return values;
+        }
+
+        public static (double, double) CalculateOutliersEdges(List<double> data)
+        {
+            double av = MathCalculations.CalculateAverage(data);
+            double S = MathCalculations.CalculateStandartDeviation(data);
+            double u = MathCalculations.CalculateNormalQuantile();
+
+            return (av - u * S, av + u * S);
         }
     }
 }

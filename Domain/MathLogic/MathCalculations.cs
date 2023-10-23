@@ -36,7 +36,7 @@ namespace DataAnalyzer.Domain.MathLogic
             get { return data; }
             set
             {
-                data = value;
+                data = new(value);
                 data.Sort();
 
                 normalQuantile = CalculateNormalQuantile(ConfidenceLevel);
@@ -52,7 +52,7 @@ namespace DataAnalyzer.Domain.MathLogic
 
         public MathCalculations(List<double> inputData, double intervalConfidenceLevel = 0.975)
         {
-            data = inputData;
+            data = new(inputData);
             data.Sort();
 
             Characteristics = new();
@@ -60,7 +60,7 @@ namespace DataAnalyzer.Domain.MathLogic
         }
 
 
-        public static double CalculateNormalQuantile(double confidenceLevel)
+        public static double CalculateNormalQuantile(double confidenceLevel = 0.975)
         {
             double a = 1 - confidenceLevel;
 
@@ -78,7 +78,7 @@ namespace DataAnalyzer.Domain.MathLogic
             return u;
         }
 
-        public static double CalculateStudentQuantile(double normalQuantile, int freedomLevel)
+        public static double CalculateStudentQuantile(double normalQuantile = 0.975, int freedomLevel = 5)
         {
             double v = Convert.ToDouble(freedomLevel);
             double u = normalQuantile;
@@ -94,6 +94,19 @@ namespace DataAnalyzer.Domain.MathLogic
                 1 / Math.Pow(v, 3) * g3 + 1 / Math.Pow(v, 4) * g4;
 
             return t;
+        }
+
+        public static double CalculateAverage(List<double> data)
+        {
+            return data.Average();
+        }
+
+        public static double CalculateStandartDeviation(List<double> data)
+        {
+            double av = data.Average();
+            int N = data.Count;
+
+            return Math.Sqrt(data.Sum(x => Math.Pow(x - av, 2)) / (N - 1));
         }
 
 

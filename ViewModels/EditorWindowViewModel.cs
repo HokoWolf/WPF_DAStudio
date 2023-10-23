@@ -9,8 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace DataAnalyzer.ViewModels
@@ -40,6 +42,11 @@ namespace DataAnalyzer.ViewModels
         public SeriesCollection ECDFChartSeries { get; set; }
         public AxesCollection ECDFChartAxesX { get; set; }
         public AxesCollection ECDFChartAxesY { get; set; }
+
+        // OutliersChart
+        public SeriesCollection? OutliersChartSeries { get; set; }
+        public AxesCollection? OutliersChartAxesX { get; set; }
+        public AxesCollection? OutliersChartAxesY { get; set; }
 
 
         // MainProperties
@@ -78,17 +85,22 @@ namespace DataAnalyzer.ViewModels
 
                 // MainChart
                 MainChartSeries[0].Values = new ChartValues<double>(VariatyClasses.Select(vc => vc.RelativeFrequency));
-                MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
-                MainChartAxesX[0].Labels = Data.Select(x => x.ToString()).ToList();
 
-                MainChartSeries[1].Values = new ChartValues<double>(diagramsCalculations.KDEValues
-                        .Select(x => x * variatyProcessing.ClassWidth));
+                MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
+                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
                 (MainChartSeries[1] as LineSeries)!.PointGeometrySize = Data.Count < 100 ? 10 : 0;
 
+                MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
+                MainChartAxesX[2].MaxValue = VariatyClasses.Count;
+
                 // ECDFChart
-                ECDFChartSeries[0].Values = new ChartValues<double>(Variaties.Select(v => v.ECDFValue));
-                ECDFChartAxesX[0].Labels = Variaties.Select(x => x.Value.ToString()).ToList();
+                ECDFChartSeries[0].Values = new ChartValues<ObservablePoint>(Variaties.Select((x, i) =>
+                        new ObservablePoint(x.Value, Variaties[i].ECDFValue)));
+                (ECDFChartSeries[0] as StepLineSeries)!.PointGeometrySize = Variaties.Count < 50 ? 10 : 0;
+                (ECDFChartSeries[0] as StepLineSeries)!.StrokeThickness = Variaties.Count < 50 ? 3 : 1;
+
+
             }
         }
 
@@ -107,12 +119,16 @@ namespace DataAnalyzer.ViewModels
 
                 RoundVariatyClasses();
 
+                // MainChart
                 MainChartSeries[0].Values = new ChartValues<double>(VariatyClasses.Select(vc => vc.RelativeFrequency));
                 MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
 
-                MainChartSeries[1].Values = new ChartValues<double>(diagramsCalculations.KDEValues
-                        .Select(x => x * variatyProcessing.ClassWidth));
+                MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
+                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
+
+                MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
+                MainChartAxesX[2].MaxValue = VariatyClasses.Count;
 
                 OnPropertyChanged();
             }
@@ -125,8 +141,8 @@ namespace DataAnalyzer.ViewModels
             {
                 diagramsCalculations.Bandwidth = value;
 
-                MainChartSeries[1].Values = new ChartValues<double>(diagramsCalculations.KDEValues
-                        .Select(x => x * variatyProcessing.ClassWidth));
+                MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
+                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
 
                 OnPropertyChanged();
@@ -137,6 +153,7 @@ namespace DataAnalyzer.ViewModels
         // Commands
         public RelayCommand ChangeClassCountCommand => new (execute => { ChangeClassCount(); });
         public RelayCommand ChangeBandwidthCommand => new (execute => { ChangeBandwidth(); });
+        public RelayCommand DeleteOutliers => new(execute => { DeleteOutliersCall(); });
 
 
         // OnPropertyChanged
@@ -147,6 +164,7 @@ namespace DataAnalyzer.ViewModels
         }
 
 
+        // Ctors
         public EditorWindowViewModel(List<double> inputData)
         {
             // VariatyProcessing
@@ -209,6 +227,20 @@ namespace DataAnalyzer.ViewModels
                 {
                     Title = "Значення, x",
                     ShowLabels = false
+                },
+                new Axis
+                {
+                    LabelFormatter = x => "",
+                    MinValue = 0,
+                    MaxValue = VariatyClasses.Count,
+                    Separator = new Separator
+                    {
+                        Step = 1,
+                        IsEnabled = true,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection(new double[] {2}),
+                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131))
+                    }
                 }
             };
 
@@ -218,7 +250,7 @@ namespace DataAnalyzer.ViewModels
                 {
                     Title = "Відносна частота, p",
                     LabelFormatter = value => value.ToString("N"),
-                    MinValue = 0.0,
+                    MinValue = 0,
                     Separator = new Separator
                     {
                         IsEnabled = true,
@@ -235,13 +267,15 @@ namespace DataAnalyzer.ViewModels
                 new StepLineSeries
                 {
                     Title = "ECDF",
-                    Values = new ChartValues<double>(Variaties.Select(v => v.ECDFValue)),
+                    Values = new ChartValues<ObservablePoint>(Variaties.Select((x, i) => 
+                        new ObservablePoint(x.Value, Variaties[i].ECDFValue))),
                     LabelPoint = value => $"Fn(X)={value.Y}",
                     ScalesXAt = 0,
                     ScalesYAt = 0,
-                    PointGeometrySize = 10,
+                    PointGeometrySize = Variaties.Count < 50 ? 10 : 0,
+                    StrokeThickness = Variaties.Count < 50 ? 3 : 1,
                     Stroke = new SolidColorBrush(Color.FromArgb(255, 206, 185, 102)),
-                    AlternativeStroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0))
+                    AlternativeStroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
                 }
             };
 
@@ -249,15 +283,8 @@ namespace DataAnalyzer.ViewModels
             {
                 new Axis
                 {
-                    Labels = Variaties.Select(x => x.Value.ToString()).ToList(),
-                    Separator = new Separator
-                    {
-                        IsEnabled = true,
-                        StrokeThickness = 1,
-                        StrokeDashArray = new DoubleCollection(new double[] {2}),
-                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131)),
-                        Step = 1
-                    }
+                    Title = "Значення варіанти, х",
+                    ShowLabels = false,
                 }
             };
 
@@ -352,6 +379,78 @@ namespace DataAnalyzer.ViewModels
         {
             ChangeBandwidthWindow changeWindow = new(this);
             changeWindow.ShowDialog();
+        }
+
+        private void DeleteOutliersCall()
+        {
+            GenerateOutliersChart();
+            DeleteOutliersWindow deleteWindow = new(this);
+            deleteWindow.ShowDialog();
+        }
+
+
+        private void GenerateOutliersChart()
+        {
+            OutliersChartSeries = new SeriesCollection
+            {
+                new ScatterSeries
+                {
+                    Title = "Нормальні",
+                    Values = new ChartValues<ObservablePoint>(diagramsCalculations.UnsortedData.Select(
+                        (x, i) => new ObservablePoint(i, x)).Where(
+                        x => x.Y >= diagramsCalculations.OutlierMinEdge &&
+                        x.Y <= diagramsCalculations.OutlierMaxEdge)),
+                    LabelPoint = value => $"{value.X} - {value.Y}",
+                    PointGeometry = DefaultGeometries.Diamond,
+                    Stroke = new SolidColorBrush(Colors.Black),
+                    Fill = new SolidColorBrush(Colors.Black)
+                },
+                new ScatterSeries
+                {
+                    Title = "Аномальні",
+                    Values = new ChartValues<ObservablePoint>(diagramsCalculations.UnsortedData.Select(
+                        (x, i) => new ObservablePoint(i, x)).Where(
+                        x => x.Y < diagramsCalculations.OutlierMinEdge ||
+                        x.Y > diagramsCalculations.OutlierMaxEdge)),
+                    LabelPoint = value => $"{value.X} - {value.Y}",
+                    PointGeometry = DefaultGeometries.Diamond,
+                    Stroke = new SolidColorBrush(Colors.Red),
+                    Fill = new SolidColorBrush(Colors.Red)
+                }
+            };
+
+            OutliersChartAxesX = new AxesCollection
+            {
+                new Axis
+                {
+                    Title = "Індекси, i",
+                    LabelFormatter = value => value.ToString(),
+                    Separator = new Separator
+                    {
+                        IsEnabled = true,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection(new double[] {2}),
+                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131))
+                    }
+                }
+            };
+
+            OutliersChartAxesY = new AxesCollection
+            {
+                new Axis
+                {
+                    Title = "Значення, x",
+                    LabelFormatter = value => value.ToString(),
+                    MinValue = 0,
+                    Separator = new Separator
+                    {
+                        IsEnabled = true,
+                        StrokeThickness = 1,
+                        StrokeDashArray = new DoubleCollection(new double[] {2}),
+                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131))
+                    }
+                }
+            };
         }
     }
 }

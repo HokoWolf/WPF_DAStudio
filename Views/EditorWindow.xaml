@@ -63,6 +63,8 @@
                               Command="{Binding ChangeClassCountCommand}" />
                     <MenuItem Header="Змінити ширину вікна" 
                               Command="{Binding ChangeBandwidthCommand}" />
+                    <MenuItem Header="Вилучити аномальні значення" 
+                              Command="{Binding DeleteOutliers}" />
                 </MenuItem>
             </Menu>
 
@@ -179,7 +181,8 @@
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" />
 
                 <lvc:CartesianChart Grid.Row="2" LegendLocation="Bottom" Series="{Binding ECDFChartSeries}"
-                                    AxisX="{Binding ECDFChartAxesX}" AxisY="{Binding ECDFChartAxesY}"/>
+                                    AxisX="{Binding ECDFChartAxesX}" AxisY="{Binding ECDFChartAxesY}" 
+                                    DisableAnimations="True" />
             </Grid> 
         </Grid>
     </Grid>

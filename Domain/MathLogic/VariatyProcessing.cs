@@ -43,7 +43,7 @@ namespace DataAnalyzer.Domain.MathLogic
             get { return data; }
             set
             {
-                data = value;
+                data = new(value);
                 data.Sort();
 
                 Variaties = FillVariaties(data);
@@ -54,10 +54,10 @@ namespace DataAnalyzer.Domain.MathLogic
 
         public VariatyProcessing(List<double> inputData)
         {
-            data = inputData;
+            data = new(inputData);
             data.Sort();
 
-            Variaties = FillVariaties(inputData);
+            Variaties = FillVariaties(data);
 
             VariatyClasses = new();
             ClassCount = CalculateDefaultClassCount(data);
