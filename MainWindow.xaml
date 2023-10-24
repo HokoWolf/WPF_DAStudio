@@ -8,6 +8,7 @@
         Height="450" Width="800" WindowStyle="None" 
         WindowStartupLocation="CenterScreen"
         MinHeight="320" MinWidth="640"
+        BorderBrush="#FF0B473A" BorderThickness="1"
         MouseLeftButtonDown="IntroWindow_MouseLeftButtonDown">
 
     <Grid Background="#FF95EEDA">

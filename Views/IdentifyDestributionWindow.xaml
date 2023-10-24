@@ -1,0 +1,129 @@
+﻿<Window x:Name="IdentifyDestribution" x:Class="DataAnalyzer.Views.IdentifyDestributionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DataAnalyzer.Views"
+        mc:Ignorable="d" FontFamily="Cascadia Code" 
+        MinHeight="480" MinWidth="800" 
+        Height="800" Width="1200" WindowStyle="None"
+        BorderBrush="#FF0B473A" BorderThickness="1"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        MouseLeftButtonDown="IdentifyDestribution_MouseLeftButtonDown">
+
+    <Window.Resources>
+        <Style TargetType="DataGridCell">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="WrapWithOverflow" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Background="#FF95EEDA">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                        x:Name="btMinimize" Content="_" Click="btMinimize_Click" />
+                <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                        x:Name="btMaximize" Content="🗖" Click="btMaximize_Click" />
+                <Button Style="{DynamicResource CustomControlButtonStyle}" 
+                        x:Name="btExit" Content="X" Click="btExit_Click" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextWrapping="WrapWithOverflow" TextAlignment="Center"
+                           FontSize="28" Text="За коефіцієнтами асиметрії та ексцесу" />
+
+                <DataGrid Grid.Row="1" Height="auto" Margin="5 20 5 5" IsReadOnly="True"
+                          HeadersVisibility="All" AutoGenerateColumns="False" 
+                          CanUserReorderColumns="False" CanUserSortColumns="False" 
+                          CanUserResizeRows="False" ItemsSource="{Binding SkewnessAndKurtosis}">
+
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                            <Setter Property="FontSize" Value="14" />
+                        </Style>
+                    </DataGrid.CellStyle>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="0.5*" MinWidth="120" 
+                            Header="Характерстика" Binding="{Binding Name}" />
+                        <DataGridTextColumn Width="0.2*" MinWidth="80" 
+                            Header="Оцінка" Binding="{Binding Evaluation}" />
+                        <DataGridTextColumn Width="0.3*" MinWidth="180" 
+                            Header="Середньоквадратичне відхилення оцінки"
+                            Binding="{Binding EvaluationDiviation}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Vertical"
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="20" />
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <TextBlock HorizontalAlignment="Center" Text="Чи ідентифікується розподіл?" FontWeight="Bold" />
+
+                    <TextBlock HorizontalAlignment="Center" Text="{Binding NormalDeviationLabel}" />
+
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                        <StackPanel Margin="0 30 0 0" Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock HorizontalAlignment="Center" Text="H(0): A = 0" />
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding SkewnessEquation}" />
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding SkewnessResult}"
+                                       Foreground="{Binding SkewnessResultColor}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0 30 0 0" Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock HorizontalAlignment="Center" Text="H(0): E = 0" />
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding KurtosisEquation}" />
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding KurtosisResult}"
+                                       Foreground="{Binding KurtosisResultColor}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Margin="0 40 0 0" HorizontalAlignment="Center" 
+                               Text="{Binding IdentifyResult}" FontWeight="Bold"
+                               Foreground="{Binding IdentifyResultColor}"/>
+                </StackPanel>
+            </Grid>
+            
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+        </Grid>
+    </Grid>
+</Window>

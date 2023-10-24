@@ -6,15 +6,9 @@
         xmlns:local="clr-namespace:DataAnalyzer.Views"
         mc:Ignorable="d" FontFamily="Cascadia Code" 
         Height="300" Width="500" WindowStyle="None"
+        BorderBrush="#FF0B473A" BorderThickness="1"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
         MouseLeftButtonDown="ChangeClassCount_MouseLeftButtonDown">
-
-    <Window.Style>
-        <Style TargetType="Window">
-            <Setter Property="BorderBrush" Value="#FF0B473A" />
-            <Setter Property="BorderThickness" Value="2" />
-        </Style>
-    </Window.Style>
 
     <Grid Background="#FFFDFDFD">
         <Grid.RowDefinitions>

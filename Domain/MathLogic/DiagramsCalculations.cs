@@ -103,5 +103,14 @@ namespace DataAnalyzer.Domain.MathLogic
 
             return (av - u * S, av + u * S);
         }
+
+        public static List<double> DeleteOutliers(List<double> data)
+        {
+            double minEdge, maxEdge;
+            (minEdge, maxEdge) = CalculateOutliersEdges(data);
+
+            List<double> newData = (from x in data where x >= minEdge && x <= maxEdge select x ).ToList();
+            return newData;
+        }
     }
 }
