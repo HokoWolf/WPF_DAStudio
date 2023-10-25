@@ -11,7 +11,7 @@ namespace DataAnalyzer.Views
     /// </summary>
     public partial class DeleteOutliersWindow : Window
     {
-        public DeleteOutliersWindow(EditorWindowViewModel vm)
+        public DeleteOutliersWindow(OutliersWindowViewModel vm)
         {
             InitializeComponent();
             this.DataContext = vm;

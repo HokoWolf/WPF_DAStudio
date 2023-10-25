@@ -4,8 +4,38 @@ using System.Linq;
 
 namespace DataAnalyzer.Domain.MathLogic
 {
-    public class DiagramsCalculations
+    public class ChartsCalculations
     {
+        public List<double> UnsortedData { get; private set; }
+
+
+        private List<double> data;
+        public List<double> Data
+        {
+            get { return data; }
+            set
+            {
+                UnsortedData = new(value);
+                (OutlierMinEdge, OutlierMaxEdge) = CalculateOutliersEdges(UnsortedData);
+                
+                DataWithoutOutliers = UnsortedData
+                    .Select((value, index) => new { Index = index, Value = value })
+                    .Where(item => item.Value >= OutlierMinEdge && item.Value <= OutlierMaxEdge)
+                    .ToDictionary(item => item.Index, item => item.Value);
+
+                Outliers = UnsortedData
+                    .Select((value, index) => new { Index = index, Value = value })
+                    .Where(item => item.Value < OutlierMinEdge || item.Value > OutlierMaxEdge)
+                    .ToDictionary(item => item.Index, item => item.Value);
+
+                data = new(value);
+                data.Sort();
+
+                Bandwidth = CalculateDefaultBandwidth(data);
+            }
+        }
+
+
         private double bandwidth;
         public double Bandwidth
         {
@@ -20,37 +50,30 @@ namespace DataAnalyzer.Domain.MathLogic
             }
         }
 
+        public List<double> KDEValues { get; private set; }
+
+
         public double OutlierMinEdge { get; private set; }
         public double OutlierMaxEdge { get; private set; }
 
-
-        public List<double> UnsortedData { get; private set; }
-
-
-        private List<double> data;
-        public List<double> Data
-        {
-            get { return data; }
-            set
-            {
-                UnsortedData = new(value);
-                (OutlierMinEdge, OutlierMaxEdge) = CalculateOutliersEdges(UnsortedData);
-
-                data = new(value);
-                data.Sort();
-
-                Bandwidth = CalculateDefaultBandwidth(data);
-            }
-        }
+        public Dictionary<int, double> DataWithoutOutliers { get; private set; }
+        public Dictionary<int, double> Outliers { get; private set; }
 
 
-        public List<double> KDEValues { get; private set; } 
-
-
-        public DiagramsCalculations(List<double> inputData)
+        public ChartsCalculations(List<double> inputData)
         {
             UnsortedData = new(inputData);
             (OutlierMinEdge, OutlierMaxEdge) = CalculateOutliersEdges(UnsortedData);
+
+            DataWithoutOutliers = UnsortedData
+                    .Select((value, index) => new { Index = index, Value = value })
+                    .Where(item => item.Value >= OutlierMinEdge && item.Value <= OutlierMaxEdge)
+                    .ToDictionary(item => item.Index, item => item.Value);
+
+            Outliers = UnsortedData
+                .Select((value, index) => new { Index = index, Value = value })
+                .Where(item => item.Value < OutlierMinEdge || item.Value > OutlierMaxEdge)
+                .ToDictionary(item => item.Index, item => item.Value);
 
             data = new(inputData);
             data.Sort();

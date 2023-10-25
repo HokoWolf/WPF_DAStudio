@@ -62,7 +62,9 @@ namespace DataAnalyzer.Domain.MathLogic
 
         public static double CalculateNormalQuantile(double confidenceLevel = 0.975)
         {
-            double a = 1 - confidenceLevel;
+            bool flag = confidenceLevel > 0.5;
+
+            double a = flag ? 1 - confidenceLevel : confidenceLevel;
 
             double t = Math.Sqrt(-2 * Math.Log(a));
             double c0 = 2.515517;
@@ -75,7 +77,7 @@ namespace DataAnalyzer.Domain.MathLogic
             double u = t - (c0 + c1 * t + c2 * t * t) /
                 (1 + d1 * t + d2 * t * t + d3 * t * t * t);
 
-            return u;
+            return flag ? u : -u;
         }
 
         public static double CalculateStudentQuantile(double normalQuantile = 0.975, int freedomLevel = 5)

@@ -18,12 +18,11 @@ namespace DataAnalyzer.ViewModels
     public class EditorWindowViewModel : INotifyPropertyChanged
     {
         int _maxPrecision;
-        bool _isOutliersGenerated;
 
         // MathLogic classes
         private readonly MathCalculations mathCalculations;
         private readonly VariatyProcessing variatyProcessing;
-        private readonly DiagramsCalculations diagramsCalculations;
+        private readonly ChartsCalculations chartsCalculations;
 
 
         // ObservableCollections
@@ -42,26 +41,6 @@ namespace DataAnalyzer.ViewModels
         public AxesCollection ECDFChartAxesX { get; set; }
         public AxesCollection ECDFChartAxesY { get; set; }
 
-        // OutliersChart
-        public ChartValues<ObservablePoint>? OutliersChartNormalValues { get; set; }
-        public ChartValues<ObservablePoint>? OutliersChartOutlierValues { get; set; }
-        public SeriesCollection? OutliersChartSeries { get; set; }
-        public AxesCollection? OutliersChartAxesX { get; set; }
-        public AxesCollection? OutliersChartAxesY { get; set; }
-
-
-        // IdentifyWindow
-        public ObservableCollection<Characteristic>? SkewnessAndKurtosis { get; set; }
-        public string NormalDeviationLabel { get; private set; }
-        public string SkewnessEquation { get; private set; }
-        public string SkewnessResult { get; private set; }
-        public SolidColorBrush SkewnessResultColor { get; private set; }
-        public string KurtosisEquation { get; private set; }
-        public string KurtosisResult { get; private set; }
-        public SolidColorBrush KurtosisResultColor { get; private set; }
-        public string IdentifyResult { get; private set; }
-        public SolidColorBrush IdentifyResultColor { get; private set; }
-
 
         // MainProperties
         public List<double> Data
@@ -71,7 +50,7 @@ namespace DataAnalyzer.ViewModels
             {
                 variatyProcessing.Data = value;
                 mathCalculations.Data = value;
-                diagramsCalculations.Data = value;
+                chartsCalculations.Data = value;
 
                 Variaties.Clear();
                 foreach (var item in variatyProcessing.Variaties)
@@ -101,7 +80,7 @@ namespace DataAnalyzer.ViewModels
                 MainChartSeries[0].Values = new ChartValues<double>(VariatyClasses.Select(vc => vc.RelativeFrequency));
 
                 MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
-                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
+                        new ObservablePoint(x, chartsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
                 (MainChartSeries[1] as LineSeries)!.PointGeometrySize = Data.Count < 100 ? 10 : 0;
 
@@ -113,9 +92,6 @@ namespace DataAnalyzer.ViewModels
                         new ObservablePoint(x.Value, Variaties[i].ECDFValue)));
                 (ECDFChartSeries[0] as StepLineSeries)!.PointGeometrySize = Variaties.Count < 50 ? 10 : 0;
                 (ECDFChartSeries[0] as StepLineSeries)!.StrokeThickness = Variaties.Count < 50 ? 3 : 1;
-
-                // OutliersChart
-                _isOutliersGenerated = false;
             }
         }
 
@@ -139,7 +115,7 @@ namespace DataAnalyzer.ViewModels
                 MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
 
                 MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
-                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
+                        new ObservablePoint(x, chartsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
 
                 MainChartAxesX[0].Labels = VariatyClasses.Select(x => x.Value).ToList();
@@ -151,13 +127,13 @@ namespace DataAnalyzer.ViewModels
 
         public double Bandwidth
         {
-            get { return diagramsCalculations.Bandwidth; }
+            get { return chartsCalculations.Bandwidth; }
             set
             {
-                diagramsCalculations.Bandwidth = value;
+                chartsCalculations.Bandwidth = value;
 
                 MainChartSeries[1].Values = new ChartValues<ObservablePoint>(Data.Select((x, i) =>
-                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
+                        new ObservablePoint(x, chartsCalculations.KDEValues[i] * variatyProcessing.ClassWidth)));
                 MainChartSeries[1].LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}";
 
                 OnPropertyChanged();
@@ -193,7 +169,7 @@ namespace DataAnalyzer.ViewModels
             Characteristics = new(mathCalculations.Characteristics);
 
             // Charts
-            diagramsCalculations = new(inputData);
+            chartsCalculations = new(inputData);
 
             // Rounding
             _maxPrecision = CalculateMaxPrecision();
@@ -221,7 +197,7 @@ namespace DataAnalyzer.ViewModels
                 {
                     Title = "Щільність",
                     Values = new ChartValues<ObservablePoint>(Data.Select((x, i) => 
-                        new ObservablePoint(x, diagramsCalculations.KDEValues[i] * variatyProcessing.ClassWidth))),
+                        new ObservablePoint(x, chartsCalculations.KDEValues[i] * variatyProcessing.ClassWidth))),
                     LabelPoint = value => $"f(x)={value.Y / variatyProcessing.ClassWidth}",
                     ScalesXAt = 1,
                     ScalesYAt = 0,
@@ -321,9 +297,6 @@ namespace DataAnalyzer.ViewModels
                     }
                 }
             };
-
-            // OutliersChart
-            _isOutliersGenerated = false;
         }
 
 
@@ -400,139 +373,22 @@ namespace DataAnalyzer.ViewModels
             changeWindow.ShowDialog();
         }
 
-
         private void DeleteOutliersCall()
         {
-            GenerateOutliersChart();
-
-            DeleteOutliersWindow deleteWindow = new(this);
+            OutliersWindowViewModel viewModel = new(chartsCalculations);
+            DeleteOutliersWindow deleteWindow = new(viewModel);
 
             bool? result = deleteWindow.ShowDialog();
             if (result == true)
             {
-                Data = DiagramsCalculations.DeleteOutliers(diagramsCalculations.UnsortedData);
+                Data = new(chartsCalculations.DataWithoutOutliers.Select(x => x.Value).ToList());
             }
         }
-
-        private void GenerateOutliersChartValues()
-        {
-            if (!_isOutliersGenerated)
-            {
-                OutliersChartNormalValues = new(diagramsCalculations.UnsortedData.Select(
-                        (x, i) => new ObservablePoint(i, x)).Where(
-                        x => x.Y >= diagramsCalculations.OutlierMinEdge &&
-                        x.Y <= diagramsCalculations.OutlierMaxEdge));
-
-                OutliersChartOutlierValues = new(diagramsCalculations.UnsortedData.Select(
-                        (x, i) => new ObservablePoint(i, x)).Where(
-                        x => x.Y < diagramsCalculations.OutlierMinEdge ||
-                        x.Y > diagramsCalculations.OutlierMaxEdge));
-
-                _isOutliersGenerated = true;
-            }
-        }
-
-        private void GenerateOutliersChart()
-        {
-            GenerateOutliersChartValues();
-
-            OutliersChartSeries = new SeriesCollection
-            {
-                new ScatterSeries
-                {
-                    Title = "Нормальні",
-                    Values = OutliersChartNormalValues,
-                    LabelPoint = value => $"{value.X} - {value.Y}",
-                    PointGeometry = DefaultGeometries.Diamond,
-                    Stroke = new SolidColorBrush(Colors.Black),
-                    Fill = new SolidColorBrush(Colors.Black)
-                },
-                new ScatterSeries
-                {
-                    Title = "Аномальні",
-                    Values = OutliersChartOutlierValues,
-                    LabelPoint = value => $"{value.X} - {value.Y}",
-                    PointGeometry = DefaultGeometries.Diamond,
-                    Stroke = new SolidColorBrush(Colors.Red),
-                    Fill = new SolidColorBrush(Colors.Red)
-                }
-            };
-
-            OutliersChartAxesX = new AxesCollection
-            {
-                new Axis
-                {
-                    Title = "Індекси, i",
-                    LabelFormatter = value => value.ToString(),
-                    Separator = new Separator
-                    {
-                        IsEnabled = true,
-                        StrokeThickness = 1,
-                        StrokeDashArray = new DoubleCollection(new double[] {2}),
-                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131))
-                    }
-                }
-            };
-
-            OutliersChartAxesY = new AxesCollection
-            {
-                new Axis
-                {
-                    Title = "Значення, x",
-                    LabelFormatter = value => value.ToString(),
-                    MinValue = Math.Min(Data[0], diagramsCalculations.OutlierMinEdge) - 1,
-                    Separator = new Separator
-                    {
-                        IsEnabled = true,
-                        StrokeThickness = 1,
-                        StrokeDashArray = new DoubleCollection(new double[] {2}),
-                        Stroke = new SolidColorBrush(Color.FromArgb(255, 131, 131, 131))
-                    },
-                    Sections = new SectionsCollection
-                    {
-                        new AxisSection
-                        {
-                            Value = diagramsCalculations.OutlierMinEdge,
-                            SectionWidth = diagramsCalculations.OutlierMaxEdge - diagramsCalculations.OutlierMinEdge,
-                            Fill = new SolidColorBrush(Colors.Transparent),
-                            Stroke = new SolidColorBrush(Colors.Red),
-                            StrokeThickness = 2
-                        }
-                    }
-                }
-            };
-        }
-
 
         private void ShowIdenitifeWindow()
         {
-            SkewnessAndKurtosis = new()
-            {
-                Characteristics[3],
-                Characteristics[4]
-            };
-
-            double u = Math.Round(MathCalculations.CalculateNormalQuantile(mathCalculations.ConfidenceLevel), _maxPrecision);
-            double uA = Math.Round(Convert.ToDouble(SkewnessAndKurtosis[0].Evaluation / SkewnessAndKurtosis[0].EvaluationDiviation), _maxPrecision);
-            double uE = Math.Round(Convert.ToDouble(SkewnessAndKurtosis[1].Evaluation / SkewnessAndKurtosis[1].EvaluationDiviation), _maxPrecision);
-
-            bool uAFlag = Math.Abs(uA) > u;
-            bool uEFlag = Math.Abs(uE) > u;
-
-            NormalDeviationLabel = $"a = {mathCalculations.ConfidenceLevel}, u(1 - a/2) = {u}";
-
-            SkewnessEquation = $"u(A) = {SkewnessAndKurtosis[0].Evaluation} / {SkewnessAndKurtosis[0].EvaluationDiviation} = {uA}";
-            SkewnessResult = uAFlag ? $"|u(A)| > {u}" : $"|u(A)| <= {u}";
-            SkewnessResultColor = uAFlag ? Brushes.Red : Brushes.Green;
-
-            KurtosisEquation = $"u(E) = {SkewnessAndKurtosis[1].Evaluation} / {SkewnessAndKurtosis[1].EvaluationDiviation} = {uE}";
-            KurtosisResult = uEFlag ? $"|u(E)| > {u}" : $"|u(E)| <= {u}";
-            KurtosisResultColor = uEFlag ? Brushes.Red : Brushes.Green;
-
-            IdentifyResult = !uAFlag && !uEFlag ? "Так, ідентифікується" : "Ні, не ідентифікується";
-            IdentifyResultColor = !uAFlag && !uEFlag ? Brushes.Green : Brushes.Red;
-
-            IdentifyDestributionWindow identifyWindow = new(this);
+            IdentifyWindowViewModel viewModel = new(variatyProcessing.Variaties, mathCalculations);
+            IdentifyDestributionWindow identifyWindow = new(viewModel);
             identifyWindow.ShowDialog();
         }
     }

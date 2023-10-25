@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DataAnalyzer.Views"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d" FontFamily="Cascadia Code" 
         MinHeight="480" MinWidth="800" 
         Height="800" Width="1200" WindowStyle="None"
@@ -38,10 +39,6 @@
 
         <Grid Background="#FF95EEDA">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{DynamicResource CustomControlButtonStyle}" 
-                        x:Name="btMinimize" Content="_" Click="btMinimize_Click" />
-                <Button Style="{DynamicResource CustomControlButtonStyle}" 
-                        x:Name="btMaximize" Content="🗖" Click="btMaximize_Click" />
                 <Button Style="{DynamicResource CustomControlButtonStyle}" 
                         x:Name="btExit" Content="X" Click="btExit_Click" />
             </StackPanel>
@@ -124,6 +121,23 @@
             </Grid>
             
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                           TextWrapping="WrapWithOverflow" TextAlignment="Center"
+                           FontSize="28" Text="На основі ймовірнісного паперу" />
+
+                <Grid x:Name="grPaper" Grid.Row="1" SizeChanged="grPaper_SizeChanged">
+                    <lvc:CartesianChart x:Name="chPaper" Series="{Binding PossibilityPaperSeries}" 
+                                        AxisX="{Binding PossibilityPaperAxesX}" 
+                                        AxisY="{Binding PossibilityPaperAxesY}"/>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
